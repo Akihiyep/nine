@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>同人女流动漫Bingo墙</title>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background-color: #f8f9fa;
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: auto;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            padding: 20px;
+            border: 1px solid #e1e4e8;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #eaeaea;
+            background-color: white;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        h1 {
+            font-size: 26px;
+            font-weight: 600;
+            color: #2c3e50;
+            letter-spacing: 0.5px;
+        }
+        
+        .counter {
+            background-color: #f1f5f9;
+            padding: 10px 25px;
+            border-radius: 25px;
+            font-size: 17px;
+            border: 1px solid #d1d9e6;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .counter span {
+            color: #1e40af;
+            font-weight: bold;
+            font-size: 20px;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            margin: 25px 0;
+            gap: 20px;
+        }
+        
+        .btn {
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
+            font-weight: 500;
+        }
+        
+        .btn:hover {
+            background-color: #2563eb;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(59, 130, 246, 0.4);
+        }
+        
+        .btn-reset {
+            background-color: #ef4444;
+            box-shadow: 0 2px 6px rgba(239, 68, 68, 0.3);
+        }
+        
+        .btn-reset:hover {
+            background-color: #dc2626;
+            box-shadow: 0 4px 8px rgba(239, 68, 68, 0.4);
+        }
+        
+        /* 表格容器 - 确保截图完整 */
+        .table-container {
+            width: 100%;
+            overflow: auto;
+            margin-bottom: 30px;
+            border: 2px solid #333;
+            border-radius: 4px;
+            background: white;
+        }
+        
+        .bingo-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+        
+        .year-cell {
+            background-color: #ef4444;
+            width: 85px;
+            height: 85px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: 600;
+            color: white;
+            border: 2px solid #333;
+            position: sticky;
+            left: 0;
+            z-index: 10;
+        }
+        
+        .anime-cell {
+            background-color: white;
+            width: 125px;
+            height: 85px;
+            border: 2px solid #333;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+            padding: 10px;
+        }
+        
+        .anime-cell:hover {
+            background-color: #f3f4f6;
+        }
+        
+        /* 选中颜色为橙色 */
+        .anime-cell.selected {
+            background-color: #ffa500;
+            border: 2px solid #cc8400;
+            color: #333;
+        }
+        
+        .anime-title {
+            font-size: 15px;
+            font-weight: 500;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .anime-cell.selected .anime-title {
+            color: #333;
+            font-weight: 600;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            padding: 20px;
+            color: #6b7280;
+            font-size: 15px;
+            border-top: 1px solid #eaeaea;
+            background-color: #f9fafb;
+            border-radius: 8px;
+        }
+        
+        /* 截图容器样式 */
+        .screenshot-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .year-cell {
+                width: 65px;
+                height: 75px;
+                font-size: 18px;
+            }
+            
+            .anime-cell {
+                width: 95px;
+                height: 75px;
+                padding: 8px;
+            }
+            
+            .anime-title {
+                font-size: 13px;
+            }
+            
+            h1 {
+                font-size: 22px;
+            }
+            
+            .counter {
+                font-size: 15px;
+                padding: 8px 20px;
+            }
+            
+            .counter span {
+                font-size: 18px;
+            }
+            
+            .btn {
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>同人女流动漫Bingo墙</h1>
+            <div class="counter">已选择: <span id="count">0</span> / <span id="total">190</span> 部动漫</div>
+        </header>
+        
+        <div class="controls">
+            <button id="saveBtn" class="btn">保存为图片</button>
+            <button id="resetBtn" class="btn btn-reset">重置选择</button>
+        </div>
+        
+        <div id="screenshot-container">
+            <div class="table-container">
+                <table class="bingo-table">
+                    <tbody id="bingo-body">
+                        <!-- 表格内容将通过JS动态生成 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>动漫Bingo墙 | 年份范围: 2006 - 2024 | 每行10部动漫 | 共190部精选动漫</p>
+        </div>
+    </div>
+
+    <script>
+        // 动漫数据（2006-2024年）
+        const animeData = [
+            // 2006
+            [
+                "双子星公主 Gyu！", "NANA", "家庭教师", "死亡笔记", "樱兰高校男公关部",
+                "寒蝉鸣泣之时", "银魂", "彩云国物语", "XXXHOLiC", "Code Geass 反叛的鲁路修"
+            ],
+            // 2007
+            [
+                "永生之酒", "幸运星", "CLANNAD", "旋风管家！", "精灵守护者",
+                "黑之契约者", "守护甜心！", "魔女猎人", "南家三姐妹", "天元突破红莲螺岩"
+            ],
+            // 2008
+            [
+                "夏目友人帐", "龙与虎", "吸血鬼骑士", "狼与香辛料", "纯情罗曼史",
+                "魔法禁书目录", "噬魂师", "S.A 优等生", "海马", "黑执事"
+            ],
+            // 2009
+            [
+                "好想告诉你", "化物语", "轻音少女", "潘多拉之心", "钢之炼金术师FA",
+                "妖精的尾巴", "青之花", "梦色蛋糕师", "某科学的超电磁炮", "凉宫春日的忧郁"
+            ],
+            // 2010
+            [
+                "四叠半神话大系", "无头骑士异闻录", "咎狗之血", "变身！偶像公主", "会长是女仆大人！",
+                "吊带袜天使", "花丸幼稚园", "HeartCatch光之美少女！", "恋爱暴君", "笨蛋、测验、召唤兽"
+            ],
+            // 2011
+            [
+                "魔法少女小圆", "Fate/Zero", "未闻花名", "命运石之门", "花牌情缘",
+                "世界第一初恋", "偶像大师", "GOSICK", "歌之王子殿下", "日常"
+            ],
+            // 2012
+            [
+                "白熊咖啡厅", "男子高中生的日常", "一起一起这里那里", "K", "JOJO的奇妙冒险",
+                "冰菓", "元气少女缘结神", "中二病也要谈恋爱！", "邻座的怪同学", "刀剑神域"
+            ],
+            // 2013
+            [
+                "玉子市场", "进击的巨人", "free!", "悠哉日常大王", "钻石王牌",
+                "境界的彼方", "兄弟战争", "血咒圣痕", "银之匙", "魔鬼恋人"
+            ],
+            // 2014
+            [
+                "尽管如此世界依然美丽", "NO GAME NO LIFE游戏人生", "四月是你的谎言", "排球少年！！", "晨曦公主",
+                "月刊少女野崎君", "白箱", "七大罪", "请问您今天要来点兔子吗？", "戏剧性谋杀"
+            ],
+            // 2015
+            [
+                "骨王", "食戟之灵", "赤发白雪姬", "血界战线", "一拳超人",
+                "吹响！上低音号", "阿松", "监狱学园", "全部成为F", "暗杀教室"
+            ],
+            // 2016
+            [
+                "灵能百分百", "宇宙巡警露露子", "我太受欢迎了该怎么办", "Re:从零开始的异世界生活", "文豪野犬",
+                "三月的狮子", "齐木楠雄的灾难", "冰上的尤里", "刀剑乱舞-花丸-", "为美好的世界献上祝福！"
+            ],
+            // 2017
+            [
+                "最游记RELOAD BLAST", "此花亭奇谭", "小林家的龙女仆", "徒然喜欢你", "王室教师海涅",
+                "宝石之国", "来自深渊", "重启咲良田", "独占我的英雄", "狂赌之渊"
+            ],
+            // 2018
+            [
+                "黄金神威", "魔卡少女樱 CLEAR CARD篇", "关于我转生变成史莱姆这档事", "紫罗兰永恒花园", "我让最想被拥抱的男人给威胁了",
+                "后街女孩 -极道少女-", "BANANA FISH", "IDOLiSH7", "强风吹拂", "恶魔人Crybaby"
+            ],
+            // 2019
+            [
+                "石纪元", "入间同学入魔了！", "炎炎消防队", "BEASTARS", "约定的梦幻岛",
+                "女高中生的虚度日常", "鬼灭之刃", "辉夜大小姐想让我告白", "街角魔族", "Given 被赠与的未来"
+            ],
+            // 2020
+            [
+                "地缚少年花子君", "神之塔", "总之就是非常可爱", "催眠麦克风", "虚构推理",
+                "海边的异邦人", "咒术回战", "鸣鸟不飞", "别对映像研出手！", "公主连结Re:Dive"
+            ],
+            // 2021
+            [
+                "天地创造设计部", "无限滑板", "86-不存在的战区-", "瓦尼塔斯的手记", "极主夫道",
+                "转生成蜘蛛又怎样？", "堀与宫村", "赛博朋克：边缘行者", "国王排名", "阴晴不定大哥哥"
+            ],
+            // 2022
+            [
+                "呆萌酷男孩", "夏日重现", "间谍过家家", "孤独摇滚！", "更衣人偶坠入爱河",
+                "电锯人", "莉可丽丝", "派对浪客诸葛孔明", "异世界归来的舅舅", "BLUE LOCK 蓝色监狱"
+            ],
+            // 2023
+            [
+                "不死不幸", "葬送的芙莉莲", "米奇与达利", "转生成为了只有乙女游戏破灭Flag的邪恶大小姐…", "转生王女与天才千金的魔法革命",
+                "药物少女的呢喃", "跃动青春", "我推的孩子", "冰属性男子与酷酷女同事", "MyGO"
+            ],
+            // 2024
+            [
+                "失忆投捕", "怪兽8号", "迷宫饭", "夜樱家的大作战", "胆大党",
+                "反派大小姐等级99", "乱马1/2（重制）", "去参加联谊，却发现完全没有女生在场", "和山田进行LV.999的恋爱", "村井之恋"
+            ]
+        ];
+
+        // 存储选中的动漫ID
+        let selectedAnime = new Set();
+        
+        // 初始化Bingo表
+        function initBingoTable() {
+            const bingoBody = document.getElementById('bingo-body');
+            bingoBody.innerHTML = '';
+            
+            animeData.forEach((yearData, index) => {
+                const year = 2006 + index;
+                const row = document.createElement('tr');
+                
+                // 添加年份单元格
+                const yearCell = document.createElement('td');
+                yearCell.className = 'year-cell';
+                yearCell.textContent = year;
+                row.appendChild(yearCell);
+                
+                // 添加动漫单元格
+                yearData.forEach((title, colIndex) => {
+                    const cell = document.createElement('td');
+                    cell.className = 'anime-cell';
+                    cell.dataset.id = `${year}-${colIndex}`;
+                    
+                    const titleDiv = document.createElement('div');
+                    titleDiv.className = 'anime-title';
+                    titleDiv.textContent = title || '未公布';
+                    
+                    cell.appendChild(titleDiv);
+                    row.appendChild(cell);
+                    
+                    // 添加点击事件
+                    cell.addEventListener('click', () => toggleSelection(`${year}-${colIndex}`));
+                });
+                
+                bingoBody.appendChild(row);
+            });
+        }
+        
+        // 切换选择状态
+        function toggleSelection(id) {
+            const cell = document.querySelector(`.anime-cell[data-id="${id}"]`);
+            
+            if (selectedAnime.has(id)) {
+                selectedAnime.delete(id);
+                cell.classList.remove('selected');
+            } else {
+                selectedAnime.add(id);
+                cell.classList.add('selected');
+            }
+            
+            updateCounter();
+        }
+        
+        // 更新计数器
+        function updateCounter() {
+            document.getElementById('count').textContent = selectedAnime.size;
+        }
+        
+        // 保存为图片
+        function saveAsImage() {
+            // 创建包含整个内容的容器用于截图
+            const screenshotContainer = document.createElement('div');
+            screenshotContainer.style.position = 'absolute';
+            screenshotContainer.style.left = '-9999px';
+            screenshotContainer.style.width = '1400px';
+            screenshotContainer.style.maxWidth = '100%';
+            screenshotContainer.style.backgroundColor = 'white';
+            screenshotContainer.style.borderRadius = '8px';
+            screenshotContainer.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.08)';
+            screenshotContainer.style.border = '1px solid #e1e4e8';
+            screenshotContainer.style.padding = '20px';
+            
+            // 克隆整个容器内容（包括header和计数器）
+            const containerClone = document.querySelector('.container').cloneNode(true);
+            
+            // 移除按钮
+            const controls = containerClone.querySelector('.controls');
+            if (controls) controls.remove();
+            
+            // 添加克隆内容到截图容器
+            screenshotContainer.appendChild(containerClone);
+            document.body.appendChild(screenshotContainer);
+            
+            // 添加保存中的提示
+            const saveBtn = document.getElementById('saveBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            const originalBtnText = saveBtn.textContent;
+            saveBtn.textContent = '生成图片中...';
+            saveBtn.disabled = true;
+            resetBtn.disabled = true;
+            
+            // 使用requestAnimationFrame确保DOM更新
+            requestAnimationFrame(() => {
+                html2canvas(screenshotContainer, {
+                    backgroundColor: '#ffffff',
+                    scale: 2,
+                    logging: false,
+                    useCORS: true,
+                    allowTaint: false
+                }).then(canvas => {
+                    const link = document.createElement('a');
+                    const dateStr = new Date().toISOString().slice(0, 10);
+                    link.download = `同人女流动漫Bingo_${dateStr}.png`;
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                    
+                    // 恢复按钮状态
+                    saveBtn.textContent = originalBtnText;
+                    saveBtn.disabled = false;
+                    resetBtn.disabled = false;
+                    
+                    // 移除截图容器
+                    document.body.removeChild(screenshotContainer);
+                }).catch(error => {
+                    console.error('保存图片出错:', error);
+                    saveBtn.textContent = originalBtnText;
+                    saveBtn.disabled = false;
+                    resetBtn.disabled = false;
+                    document.body.removeChild(screenshotContainer);
+                    alert('保存图片时出错，请重试');
+                });
+            });
+        }
+        
+        // 重置选择
+        function resetSelection() {
+            if (confirm('确定要重置所有选择吗？')) {
+                selectedAnime.clear();
+                document.querySelectorAll('.anime-cell').forEach(cell => {
+                    cell.classList.remove('selected');
+                });
+                updateCounter();
+            }
+        }
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            initBingoTable();
+            
+            // 计算并设置总动漫数
+            const totalAnime = animeData.reduce((sum, year) => sum + year.length, 0);
+            document.getElementById('total').textContent = totalAnime;
+            
+            // 绑定按钮事件
+            document.getElementById('saveBtn').addEventListener('click', saveAsImage);
+            document.getElementById('resetBtn').addEventListener('click', resetSelection);
+        });
+    </script>
+</body>
+</html>
